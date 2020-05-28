@@ -1,11 +1,12 @@
 const express = require('express')
-const routesIndex = require('./routes/index')
-const routesUsers = require('./routes/users')
+const consign = require('consign')
 
-let app = express()
+const app = express()
 
-app.use(routesIndex)
-app.use('/users', routesUsers)
+consign().include('routes').into(app)
+
+// app.use(routesIndex)
+// app.use('/users', routesUsers)
 
 
 
