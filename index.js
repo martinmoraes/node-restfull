@@ -1,13 +1,26 @@
-const http = require ('http')
+const express = require('express')
 
-let server = http.createServer((req, res) => {
+let app = express()
 
-    console.log('URL: ', req.url)
-    console.log('METHODO: ', req.method)
+app.get('/', (req, res) => {
 
-    res.end('OK')
+    res.statusCode = 200
+    res.setHeader('Content-Type', 'text/html')
+    res.end('<h1>Olá</h1>')
 })
 
-server.listen(3000, '127.0.0.1', () => {
+app.get('/users', (req, res) => {
+    res.statusCode = 200
+    res.setHeader('content-Type', 'application/json')
+    res.json({
+        users: [{
+            name: 'João',
+            email: 'joao@qweert.vb',
+            id: 1
+        }]
+    })
+})
+
+app.listen(3000, '127.0.0.1', () => {
     console.log('Servidor rodando...')
 })
