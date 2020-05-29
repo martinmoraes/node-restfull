@@ -1,16 +1,28 @@
+const NeDB = require('nedb')
+const db = new NeDB({
+    filename: 'users.db',
+    autoload: true
+})
 
 module.exports = app => {
 
     app.get('/users', (req, res) => {
-        res.statusCode = 200
-        res.setHeader('content-Type', 'application/json')
-        res.json({
-            users: [{
-                name: 'João',
-                email: 'joao@qweert.vb',
-                id: 1
-            }]
+
+        db.find({}).sort({name:1}).exec((err, users)=>{
+            if(err) {
+                console.log('Error: ', err)
+                res.status(400).json({
+                    error: err
+                })
+            } else {
+                res.statusCode = 200
+                res.setHeader('content-Type', 'application/json')
+                res.json({
+                    users
+                })
+            }
         })
+       
     })
 
     app.get('/users/admin', (req, res) => {
@@ -22,7 +34,17 @@ module.exports = app => {
     })
 
     app.post('/users', (req, res) => {
-        res.json(req.body)
+
+        db.insert(req.body, (err, user) => {
+            if (err){
+                console.log('Error: ', err)
+                res.status(400).json({
+                    error: err                    
+                })
+            } else {
+                res.status(200).json(user)
+            }
+        })
     })
 
     app.delete('/users', (req, res) => {
