@@ -20,4 +20,12 @@ module.exports = app => {
             users: []
         })
     })
+
+    app.post('/users', (req, res) => {
+        res.json(req.body)
+    })
+
+    app.delete('/users', (req, res) => {
+        res.json(req.body)
+    })
 }
