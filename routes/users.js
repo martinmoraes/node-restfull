@@ -1,3 +1,4 @@
+const { check, validationResult } = require("express-validator")
 const NeDB = require('nedb')
 const db = new NeDB({
     filename: 'users.db',
@@ -10,8 +11,8 @@ module.exports = app => {
 
     route.get((req, res) => {
 
-        db.find({}).sort({name:1}).exec((err, users)=>{
-            if(err) {
+        db.find({}).sort({ name: 1 }).exec((err, users) => {
+            if (err) {
                 app.utils.error.send(err, req, res)
             } else {
                 res.statusCode = 200
@@ -21,7 +22,7 @@ module.exports = app => {
                 })
             }
         })
-       
+
     })
 
     app.get('/users/admin', (req, res) => {
@@ -32,10 +33,20 @@ module.exports = app => {
         })
     })
 
-    route.post((req, res) => {
+    route.post([
+        check("name", "O nome é obrigatório.").notEmpty(),
+        check("email", "Email inválido.").isEmail(),
+    ], (req, res) => {
+
+        const errors = validationResult(req)
+        console.log('Errors: ', errors)
+        if (!errors.isEmpty()) {
+            app.utils.error.send(errors, req, res)
+            return false
+        }
 
         db.insert(req.body, (err, user) => {
-            if (err){
+            if (err) {
                 app.utils.error.send(err, req, res)
             } else {
                 res.status(200).json(user)
@@ -47,8 +58,8 @@ module.exports = app => {
     const routeId = app.route('/users/:id')
 
     routeId.get((req, res) => {
-        db.findOne({_id: req.params.id}).exec((err, user) => {
-            if (err){
+        db.findOne({ _id: req.params.id }).exec((err, user) => {
+            if (err) {
                 app.utils.error.send(err, req, res)
             } else {
                 res.status(200).json(user)
@@ -57,8 +68,8 @@ module.exports = app => {
     })
 
     routeId.put((req, res) => {
-        db.update({_id: req.params.id}, req.body, err => {
-            if (err){
+        db.update({ _id: req.params.id }, req.body, err => {
+            if (err) {
                 app.utils.error.send(err, req, res)
             } else {
                 res.status(200).json(Object.assign(req.params, req.body))
@@ -67,8 +78,8 @@ module.exports = app => {
     })
 
     routeId.delete((req, res) => {
-        db.remove({_id: req.params.id}, {}, err => {
-            if (err){
+        db.remove({ _id: req.params.id }, {}, err => {
+            if (err) {
                 app.utils.error.send(err, req, res)
             } else {
                 res.status(200).json(req.params)
